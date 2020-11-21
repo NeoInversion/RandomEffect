@@ -5,9 +5,16 @@ main: io.github.neoinversion.RandomEffect
 description: Gives all players a random effect every 3 minutes.
 
 commands:
-  randomeffect:
-    description: Enable or disable the RandomEffect plugin.
+  randomeffect.start:
+    description: Enable the RandomEffect plugin.
     permission: randomeffect.use
+  randomeffect.stop:
+    description: Disable the RandomEffect plugin.
+    permission: randomeffect.use
+  randomeffect.modify:
+    description: Modify plugin settings.
+    permission: randomeffect.use
+
 permissions:
   randomeffect.use:
     default: op
