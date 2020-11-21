@@ -79,7 +79,10 @@ public class Toggle implements CommandExecutor{
                             }
                         }
                         else if (args[1].equalsIgnoreCase("frequency")) {
-                            try {
+                            if (args[2].equalsIgnoreCase("default")){
+                                this.loopFrequency = 1200;
+                            }
+                            else try {
                                 this.loopFrequency = Integer.parseInt(args[2]);
                             }
                             catch (NumberFormatException e) {
@@ -87,7 +90,10 @@ public class Toggle implements CommandExecutor{
                             }
                         }
                         else if (args[1].equalsIgnoreCase("level")) {
-                            try {
+                            if (args[2].equalsIgnoreCase("random")){
+                                this.effectLevel = 0;
+                            }
+                            else try {
                                 this.effectLevel = Integer.parseInt(args[2]);
                             }
                             catch (NumberFormatException e) {
