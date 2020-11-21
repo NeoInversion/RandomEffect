@@ -22,6 +22,10 @@ public class Toggle implements CommandExecutor{
     @SuppressWarnings({"unused", "FieldMayBeFinal"})
     private RandomEffect plugin;
 
+    private int loopFrequency = 1200;
+    private int effectDuration;
+    private int effectLevel;
+
     public Toggle(RandomEffect plugin) {
         this.plugin = plugin;
         plugin.getCommand("randomeffect").setExecutor(this);
@@ -30,20 +34,22 @@ public class Toggle implements CommandExecutor{
     private BukkitTask task;
 
     private void start() {
-        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&aStarting RandomEffect!"));
         List<PotionEffectType> effects = new ArrayList<>(Arrays.asList(PotionEffectType.values()));
         effects.remove(PotionEffectType.HARM);
+
         this.task = (new BukkitRunnable() {
             @Override
             public void run() {
                 for (Player plr : Bukkit.getServer().getOnlinePlayers()) {
-                    int random = ThreadLocalRandom.current().nextInt(PotionEffectType.values().length + 1);
-                    int duration = ThreadLocalRandom.current().nextInt(100, 600 + 1);
-                    int level = ThreadLocalRandom.current().nextInt(0, 2 + 1);
-                    plr.addPotionEffect(new PotionEffect(effects.get(random), duration, level));
+                    int random = ThreadLocalRandom.current().nextInt(effects.size() + 1);
+                    if (effectDuration == 0 || effectLevel == 0) {
+                        effectDuration = ThreadLocalRandom.current().nextInt(100, 600 + 1);
+                        effectLevel = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+                    }
+                    plr.addPotionEffect(new PotionEffect(effects.get(random), effectDuration, effectLevel));
                 }
             }
-        }).runTaskTimer(plugin, 0, 1200);
+        }).runTaskTimer(plugin, 0, loopFrequency);
     }
 
     @Override
@@ -53,6 +59,7 @@ public class Toggle implements CommandExecutor{
             if (player.hasPermission("randomeffect.use")) {
                 if (cmd.getName().equalsIgnoreCase("randomeffect")) {
                     if (args[0].equalsIgnoreCase("start")) {
+                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&aStarting RandomEffect!"));
                         this.start();
                     }
                     else if (args[0].equalsIgnoreCase("stop")) {
@@ -60,6 +67,32 @@ public class Toggle implements CommandExecutor{
                         if (this.task != null) {
                             this.task.cancel();
                             this.task = null;
+                        }
+                    }
+                    else if (args[0].equalsIgnoreCase("modify")) {
+                        if (args[1].equalsIgnoreCase("duration")) {
+                            try {
+                                this.effectDuration = Integer.parseInt(args[2]);
+                            }
+                            catch (NumberFormatException e) {
+                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
+                            }
+                        }
+                        else if (args[1].equalsIgnoreCase("frequency")) {
+                            try {
+                                this.loopFrequency = Integer.parseInt(args[2]);
+                            }
+                            catch (NumberFormatException e) {
+                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
+                            }
+                        }
+                        else if (args[1].equalsIgnoreCase("level")) {
+                            try {
+                                this.effectLevel = Integer.parseInt(args[2]);
+                            }
+                            catch (NumberFormatException e) {
+                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid level provided."));
+                            }
                         }
                     }
                 }
