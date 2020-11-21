@@ -14,6 +14,15 @@ commands:
   randomeffect.modify:
     description: Modify plugin settings.
     permission: randomeffect.use
+  randomeffect.modify.frequency:
+    description: Modify the frequency of effects in ticks.
+    permission: randomeffect.use
+  randomeffect.modify.duration:
+    description: Modify the duration of effects.
+    permission: randomeffect.use
+  randomeffect.modify.level:
+      description: Modify the level of effects.
+      permission: randomeffect.use
 
 permissions:
   randomeffect.use:
