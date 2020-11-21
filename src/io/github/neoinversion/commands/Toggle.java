@@ -55,7 +55,7 @@ public class Toggle implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
-            Player player = (Player) sender;
+            Player player = (Player)sender;
             if (player.hasPermission("randomeffect.use")) {
                 if (cmd.getName().equalsIgnoreCase("randomeffect")) {
                     if (args[0].equalsIgnoreCase("start")) {
@@ -70,8 +70,14 @@ public class Toggle implements CommandExecutor{
                         }
                     }
                     else if (args[0].equalsIgnoreCase("modify")) {
-                        if (args[1].equalsIgnoreCase("duration")) {
-                            try {
+                        if (args[1] == null || args[2] == null) {
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid setting or new value provided."));
+                        }
+                        else if (args[1].equalsIgnoreCase("duration")) {
+                            if (args[2].equalsIgnoreCase("random")){
+                                this.effectDuration = 0;
+                            }
+                            else try {
                                 this.effectDuration = Integer.parseInt(args[2]);
                             }
                             catch (NumberFormatException e) {
