@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import io.github.neoinversion.RandomEffect;
 
-public class Toggle implements CommandExecutor{
+public class Toggle implements CommandExecutor {
     @SuppressWarnings({"unused", "FieldMayBeFinal"})
     private RandomEffect plugin;
 
@@ -55,57 +55,62 @@ public class Toggle implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
-            Player player = (Player)sender;
+            Player player = (Player) sender;
             if (player.hasPermission("randomeffect.use")) {
                 if (cmd.getName().equalsIgnoreCase("randomeffect")) {
-                    if (args[0].equalsIgnoreCase("start")) {
-                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&aStarting RandomEffect!"));
-                        this.start();
-                    }
-                    else if (args[0].equalsIgnoreCase("stop")) {
-                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cStopping RandomEffect!"));
-                        if (this.task != null) {
-                            this.task.cancel();
-                            this.task = null;
-                        }
-                    }
-                    else if (args[0].equalsIgnoreCase("modify")) {
-                        if (args[1] == null || args[2] == null) {
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid setting or new value provided."));
-                        }
-                        else if (args[1].equalsIgnoreCase("duration")) {
-                            if (args[2].equalsIgnoreCase("random")){
-                                this.effectDuration = 0;
+                    switch (args[0].toLowerCase()) {
+                        case "start":
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&aStarting RandomEffect!"));
+                            this.start();
+                            break;
+                        case "stop":
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cStopping RandomEffect!"));
+                            if (this.task != null) {
+                                this.task.cancel();
+                                this.task = null;
                             }
-                            else try {
-                                this.effectDuration = Integer.parseInt(args[2]);
+                            break;
+                        case "modify":
+                            if (args[1] == null || args[2] == null) {
+                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid setting or new value provided."));
+                                break;
                             }
-                            catch (NumberFormatException e) {
-                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
+                            else if (args[1].equalsIgnoreCase("duration")) {
+                                if (args[2].equalsIgnoreCase("random")) {
+                                    this.effectDuration = 0;
+                                }
+                                else try {
+                                    this.effectDuration = Integer.parseInt(args[2]);
+                                }
+                                catch (NumberFormatException e) {
+                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
+                                }
                             }
-                        }
-                        else if (args[1].equalsIgnoreCase("frequency")) {
-                            if (args[2].equalsIgnoreCase("default")){
-                                this.loopFrequency = 1200;
+                            else if (args[1].equalsIgnoreCase("frequency")) {
+                                if (args[2].equalsIgnoreCase("default")) {
+                                    this.loopFrequency = 1200;
+                                }
+                                else try {
+                                    this.loopFrequency = Integer.parseInt(args[2]);
+                                }
+                                catch (NumberFormatException e) {
+                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
+                                }
                             }
-                            else try {
-                                this.loopFrequency = Integer.parseInt(args[2]);
+                            else if (args[1].equalsIgnoreCase("level")) {
+                                if (args[2].equalsIgnoreCase("random")) {
+                                    this.effectLevel = 0;
+                                }
+                                else try {
+                                    this.effectLevel = Integer.parseInt(args[2]);
+                                }
+                                catch (NumberFormatException e) {
+                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid level provided."));
+                                }
                             }
-                            catch (NumberFormatException e) {
-                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
-                            }
-                        }
-                        else if (args[1].equalsIgnoreCase("level")) {
-                            if (args[2].equalsIgnoreCase("random")){
-                                this.effectLevel = 0;
-                            }
-                            else try {
-                                this.effectLevel = Integer.parseInt(args[2]);
-                            }
-                            catch (NumberFormatException e) {
-                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid level provided."));
-                            }
-                        }
+                            break;
+                        default:
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cUnknown command!"));
                     }
                 }
             }
