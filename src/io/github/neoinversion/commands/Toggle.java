@@ -52,6 +52,30 @@ public class Toggle implements CommandExecutor {
         }).runTaskTimer(plugin, 0, loopFrequency);
     }
 
+    private int defaultCheck(String setting, String cmdArg, String defaultCase) {
+        if (cmdArg.equalsIgnoreCase(defaultCase)) {
+            if (setting.equalsIgnoreCase("frequency"))
+                return 1200;
+            else
+                return 0;
+        }
+        return 1;
+    }
+
+    private int parseCommandValueChange(String setting, Player sender, String cmdArg, String defaultCase) {
+        int checkResult = defaultCheck(setting, cmdArg, defaultCase);
+        if (checkResult == 0 || checkResult == 1200) {
+            return checkResult;
+        }
+        else try {
+             return Integer.parseInt(cmdArg);
+        }
+        catch (NumberFormatException e) {
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid value provided, value reset."));
+            return defaultCheck(setting, defaultCase, defaultCase);
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
@@ -71,46 +95,19 @@ public class Toggle implements CommandExecutor {
                             }
                             break;
                         case "modify":
-                            if (args[1] == null || args[2] == null) {
-                                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid setting or new value provided."));
-                                break;
+                            switch(args[1].toLowerCase()) {
+                                case "frequency":
+                                    this.loopFrequency = parseCommandValueChange("frequency", player, args[2], "default");
+                                    break;
+                                case "duration":
+                                    this.effectDuration = parseCommandValueChange("duration", player, args[2], "random");
+                                    break;
+                                case "level":
+                                    this.effectLevel = parseCommandValueChange("level", player, args[2], "random");
+                                    break;
                             }
-                            else if (args[1].equalsIgnoreCase("duration")) {
-                                if (args[2].equalsIgnoreCase("random")) {
-                                    this.effectDuration = 0;
-                                }
-                                else try {
-                                    this.effectDuration = Integer.parseInt(args[2]);
-                                }
-                                catch (NumberFormatException e) {
-                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
-                                }
-                            }
-                            else if (args[1].equalsIgnoreCase("frequency")) {
-                                if (args[2].equalsIgnoreCase("default")) {
-                                    this.loopFrequency = 1200;
-                                }
-                                else try {
-                                    this.loopFrequency = Integer.parseInt(args[2]);
-                                }
-                                catch (NumberFormatException e) {
-                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid duration provided."));
-                                }
-                            }
-                            else if (args[1].equalsIgnoreCase("level")) {
-                                if (args[2].equalsIgnoreCase("random")) {
-                                    this.effectLevel = 0;
-                                }
-                                else try {
-                                    this.effectLevel = Integer.parseInt(args[2]);
-                                }
-                                catch (NumberFormatException e) {
-                                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid level provided."));
-                                }
-                            }
-                            break;
                         default:
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cUnknown command!"));
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&cInvalid command."));
                     }
                 }
             }
