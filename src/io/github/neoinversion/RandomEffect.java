@@ -8,10 +8,10 @@ import io.github.neoinversion.commands.Toggle;
 public class RandomEffect extends JavaPlugin {
     @Override
     public void onEnable() {
-        Bukkit.getLogger().info("Starting RandomEffect.");
+        Bukkit.getLogger().info("[RandomEffect] Starting...");
         new Toggle(this);
     }
     public void onDisable() {
-        Bukkit.getLogger().info("Stopping RandomEffect.");
+        Bukkit.getLogger().info("[RandomEffect] Stopping...");
     }
 }
