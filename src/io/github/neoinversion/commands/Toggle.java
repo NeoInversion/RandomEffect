@@ -52,28 +52,24 @@ public class Toggle implements CommandExecutor {
         }).runTaskTimer(plugin, 0, loopFrequency);
     }
 
-    private int defaultCheck(String setting, String cmdArg, String defaultCase) {
-        if (cmdArg.equalsIgnoreCase(defaultCase)) {
-            if (setting.equalsIgnoreCase("frequency"))
-                return 1200;
-            else
-                return 0;
-        }
-        return 1;
-    }
-
-    private int parseCommandValueChange(String setting, Player sender, String cmdArg, String defaultCase) {
-        int checkResult = defaultCheck(setting, cmdArg, defaultCase);
-        if (checkResult == 0 || checkResult == 1200) {
-            return checkResult;
-        }
-        else try {
+    private int parseArgument(Player sender, String setting, String cmdArg) {
+        try {
              return Integer.parseInt(cmdArg);
         }
         catch (NumberFormatException e) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid value provided, value reset."));
-            return defaultCheck(setting, defaultCase, defaultCase);
+            switch (setting) {
+                case "frequency":
+                    return 1200;
+                case "duration":
+                    effectDuration = ThreadLocalRandom.current().nextInt(100, 600 + 1);
+                    break;
+                case "level":
+                    effectLevel = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+                    break;
+            }
         }
+        return 0;
     }
 
     @Override
@@ -97,13 +93,13 @@ public class Toggle implements CommandExecutor {
                         case "modify":
                             switch(args[1].toLowerCase()) {
                                 case "frequency":
-                                    this.loopFrequency = parseCommandValueChange("frequency", player, args[2], "default");
+                                    this.loopFrequency = parseArgument(player, "frequency", args[2]);
                                     break;
                                 case "duration":
-                                    this.effectDuration = parseCommandValueChange("duration", player, args[2], "random");
+                                    this.effectDuration = parseArgument(player, "duration", args[2]);
                                     break;
                                 case "level":
-                                    this.effectLevel = parseCommandValueChange("level", player, args[2], "random");
+                                    this.effectLevel = parseArgument(player, "level", args[2]);
                                     break;
                             }
                         default:
