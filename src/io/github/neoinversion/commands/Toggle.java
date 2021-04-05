@@ -62,10 +62,10 @@ public class Toggle implements CommandExecutor {
                 case "frequency":
                     return 1200;
                 case "duration":
-                    effectDuration = ThreadLocalRandom.current().nextInt(100, 600 + 1);
+                    return ThreadLocalRandom.current().nextInt(100, 600 + 1);
                     break;
                 case "level":
-                    effectLevel = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+                    return ThreadLocalRandom.current().nextInt(0, 2 + 1);
                     break;
             }
         }
