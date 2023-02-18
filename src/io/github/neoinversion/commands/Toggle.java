@@ -19,8 +19,7 @@ import org.bukkit.scheduler.BukkitTask;
 import io.github.neoinversion.RandomEffect;
 
 public class Toggle implements CommandExecutor {
-    @SuppressWarnings({"unused", "FieldMayBeFinal"})
-    private RandomEffect plugin;
+    private final RandomEffect plugin;
 
     private int loopFrequency = 1200;
     private int effectDuration;
@@ -28,14 +27,20 @@ public class Toggle implements CommandExecutor {
 
     public Toggle(RandomEffect plugin) {
         this.plugin = plugin;
-        plugin.getCommand("randomeffect").setExecutor(this);
     }
 
     private BukkitTask task;
 
+    public void stop() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+    }
+
     private void start() {
         List<PotionEffectType> effects = new ArrayList<>(Arrays.asList(PotionEffectType.values()));
-        effects.remove(PotionEffectType.HARM);
+        effects.remove(PotionEffectType.HARM); // Instant death is no fun
 
         this.task = (new BukkitRunnable() {
             @Override
@@ -52,24 +57,27 @@ public class Toggle implements CommandExecutor {
         }).runTaskTimer(plugin, 0, loopFrequency);
     }
 
-    private int parseArgument(Player sender, String setting, String cmdArg) {
+    private static class ParseResult {
+        int value;
+        Boolean success;
+
+        public ParseResult(int value, Boolean success) {
+            this.value = value;
+            this.success = success;
+        }
+    }
+    private ParseResult parseArgument(String cmdArg) {
         try {
-             return Integer.parseInt(cmdArg);
+             int parsed = Integer.parseInt(cmdArg);
+             return new ParseResult(parsed, true);
         }
         catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&cError! Invalid value provided, value reset."));
-            switch (setting) {
-                case "frequency":
-                    return 1200;
-                case "duration":
-                    return ThreadLocalRandom.current().nextInt(100, 600 + 1);
-                    break;
-                case "level":
-                    return ThreadLocalRandom.current().nextInt(0, 2 + 1);
-                    break;
-            }
+            return new ParseResult(0, false);
         }
-        return 0;
+    }
+
+    private void broadcastMsg(String message) {
+        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 
     @Override
@@ -80,27 +88,37 @@ public class Toggle implements CommandExecutor {
                 if (cmd.getName().equalsIgnoreCase("randomeffect")) {
                     switch (args[0].toLowerCase()) {
                         case "start":
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&aStarting RandomEffect!"));
+                            broadcastMsg("&l&aStarting RandomEffect!");
                             this.start();
                             break;
                         case "stop":
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&l&cStopping RandomEffect!"));
                             if (this.task != null) {
+                                broadcastMsg("&l&cStopping RandomEffect!");
                                 this.task.cancel();
                                 this.task = null;
+                            } else {
+                                broadcastMsg("&l&cRandomEffect hasn't started!");
                             }
                             break;
                         case "modify":
-                            switch(args[1].toLowerCase()) {
-                                case "frequency":
-                                    this.loopFrequency = parseArgument(player, "frequency", args[2]);
-                                    break;
-                                case "duration":
-                                    this.effectDuration = parseArgument(player, "duration", args[2]);
-                                    break;
-                                case "level":
-                                    this.effectLevel = parseArgument(player, "level", args[2]);
-                                    break;
+                            if (args.length < 2)
+                                broadcastMsg("&l&cNot enough arguments; usage /modify <setting> <value>");
+                            ParseResult parsed = parseArgument(args[2]);
+                            if (parsed.success) {
+                                switch (args[1].toLowerCase()) {
+                                    case "frequency":
+                                        this.loopFrequency = parsed.value;
+                                        break;
+                                    case "duration":
+                                        this.effectDuration = parsed.value;
+                                        break;
+                                    case "level":
+                                        this.effectLevel = parsed.value;
+                                        break;
+                                }
+                            }
+                            else {
+                                broadcastMsg("&l&cInvalid value");
                             }
                         default:
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&cInvalid command."));
